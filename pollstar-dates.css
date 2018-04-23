@@ -1,0 +1,39 @@
+/**
+ *
+ *  pollstar-dates styles
+ *
+ */
+
+.pollstar_date {
+
+	float: left;
+	width: 70px;
+	margin-right: 10px;
+}
+
+.pollstar_venue {
+
+	float: left;
+/*	text-transform: uppercase; */
+	width: 180px;
+	margin-right: 10px;
+	margin-bottom: 8px;
+}
+
+.pollstar_city {
+
+	width: 160px;
+	float: left;
+/*	text-transform: uppercase; */
+	margin-bottom: 8px;
+}
+
+#pollstar_link {
+
+	font-size: 0.9em;
+}
+
+#pollstar_headers {
+
+	font-weight: 700;
+}
