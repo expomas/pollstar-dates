@@ -55,3 +55,5 @@ The plugin can also be called from a template file by using
 
 1. Plugin Settings page in WP Admin
 2. Sample page showing default settings of Pollstar dates
+
+Also available (premium): Pollstar dates by venue, Dates for multiple Pollstar artists

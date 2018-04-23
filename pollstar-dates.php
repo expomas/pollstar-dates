@@ -7,7 +7,7 @@ Plugin Name: Pollstar Artist Dates
 Description: Show Pollstar Artist's tour dates on Wordpress site.  Requires Pollstar API key.
 Version: 1.0
 Author: Expomás Diseño Web
-Author URI: http://expomas.com
+Author URI: https://expomas.com
 */
 
 wp_enqueue_style('pollstar-dates', plugins_url( '/pollstar-dates.css', __FILE__ ), false, '', 'screen');
@@ -20,14 +20,14 @@ function pollstar_shows($atts) {
 		'num_shows' => 1000 // set default to lots...
 	), $atts ) );
 
-	// 1st: figure out if we should write dates from pollstar-cache.xml, or Pollstar server...	
+	// 1st: figure out if we should write dates from pollstar-cache.xml, or Pollstar server...
 	$cache = ABSPATH . 'wp-content/plugins/pollstar-dates/pollstar-cache.xml';
 
 	// Is pollstar-cache.xml too old? (more than an hour old), then get new Pollstar data
 	$cache_age = time() - filemtime($cache);
-	
+
 	// Is pollstar-cache.xml empty?  Then try and get new data (ex. on first use of plugin)
-	$cache_stat = stat($cache);	
+	$cache_stat = stat($cache);
 	if ( ($cache_age > (60*60) ) OR ($cache_stat['size'] < 260) )  {
 
 		$ch = curl_init();
@@ -44,25 +44,25 @@ function pollstar_shows($atts) {
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 
 		$xmlstr = curl_exec($ch);
-			
-		if (stripos($xmlstr, "not valid") OR stripos($xmlstr, "not authorized")) {	
+
+		if (stripos($xmlstr, "not valid") OR stripos($xmlstr, "not authorized")) {
 			echo "Pollstar API/Artist not valid<br /><br />";
 			$invalid = true;
 		}
-	
+
 		$response = new SimpleXMLElement($xmlstr);
 
 		// write new Pollstar data to cache
 		// Don't cache if we got an invalid response...
-		
+
 		if(is_file($cache) && is_readable($cache)){
 
 			 $open = fopen($cache, 'w') or die ("File cannot be opened.");
 			 fwrite($open, $response->asXML());
-			 fclose($open); 
+			 fclose($open);
 
 		} else {
-	
+
 			echo "Error: check that pollstar-cache.xml is writable<br /><br />";
 		}
 
@@ -76,24 +76,24 @@ function pollstar_shows($atts) {
 
 	//Check if there are Events for this Artist
 	if (count($response->Events->Event) > 0) {
-	
+
 		// Are we writing table headers here?
 		$show_headers = get_option('pollstar_show_headers');
-				
+
 		if ($show_headers == 1) {
-		
+
 			echo '<div id="pollstar_headers">';
-			
+
 			echo '<div class="pollstar_date">Date</div>';
 			echo '<div class="pollstar_venue">Venue</div>';
 			echo '<div class="pollstar_city">City</div>';
 			echo '<div style="clear:both"></div>';
-			
+
 			echo '</div>'; // end pollstar_headers div
 		}
 
 		foreach($response->Events->Event as $result) {
-		
+
 			// This will check if it's a "festival" type show...
 			$artist_type = $result->Artists->Artist->attributes()->ArtistTypeID;
 
@@ -102,46 +102,46 @@ function pollstar_shows($atts) {
 
 			echo "<div class=\"pollstar_venue\"><a href=\"".$result->attributes()->Url."\" target=\"_blank\">";
 
-			// Account for "festival" type shows...	
+			// Account for "festival" type shows...
 			if ($artist_type == 1) {
-		
+
 				echo $result->attributes()->VenueName."</a></div>";
-			
+
 			} else {
-		
+
 				echo $result->attributes()->EventName."</a></div>";
 			}
 
 			echo "<div class=\"pollstar_city\">".$result->attributes()->Region."</div><div style=\"clear:both\"></div>";
-		
+
 			$show_count++;
-	
+
 			if ($show_count == $num_shows) {
 				break;
 			}
 
-		} // end foreach loop for each Event 
-		
+		} // end foreach loop for each Event
+
 	} else { // There are no events
-	
+
 		if (!($invalid)) {
-		
+
 			echo get_option('pollstar_noshow_text')."<br /><br />";
 		}
-	}	
+	}
 	?>
 
 	<!-- required under Pollstar API terms -->
 	<div id="pollstar_link"><a href="http://www.pollstar.com" target="_blank">Powered by Pollstar</a></div>
 
 	<?php
-	
-} 
+
+}
 
 add_shortcode('pollstar_shows','pollstar_shows');
 
 /* Runs when plugin is activated */
-register_activation_hook(__FILE__,'pollstar_dates_install'); 
+register_activation_hook(__FILE__,'pollstar_dates_install');
 
 /* Runs on plugin deactivation*/
 register_deactivation_hook( __FILE__, 'pollstar_dates_remove' );
@@ -178,21 +178,32 @@ if ( is_admin() ){
 	}
 
 
-} // end is_admin 
+} // end is_admin
 
+add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'pollstar_dates_action_links' );
+
+function pollstar_dates_action_links( $links ) {
+   $links[] = '<a href="'. esc_url( get_admin_url(null, 'options-general.php?page=pollstar-dates') ) .'">Settings</a>';
+   //$links[] = '<a href="http://wp-buddy.com" target="_blank">More plugins by WP-Buddy</a>';
+   return $links;
+}
 
 function pollstar_dates_html_page() {
 ?>
 
-    <div class="wrap" style="max-width: 61.727777777%;">  
+    <div class="wrap" style="max-width: 61.727777777%;">
 	<h2>Pollstar Artist Dates Options</h2>
-	
+
 	<br />
 	<em>Any donations appreciated</em><br />
 
-<a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RY5H979GPM5ZE' target='_blank'>
+<a href='https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RY5H979GPM5ZE'
+	target='_blank' style="float:left;">
 	<img src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" /></a>
-	<br/><br/>
+
+	<div style="float:left;margin-left:50px;"><strong>Bitcoin:</strong>
+		1MDRFyVS93BVLc5dgpGpVVupy3X5CSveDa</div>
+<div style="clear:both;height:30px;"></div>
 
 	<form method="post" action="options.php">
 	<?php wp_nonce_field('update-options'); ?>
@@ -203,6 +214,7 @@ function pollstar_dates_html_page() {
 	<td width="406">
 	<input name="pollstar_artist" type="text" id="pollstar_artist"
 	value="<?php echo get_option('pollstar_artist'); ?>" />
+	<a href="http://data.pollstar.com/api/" target="_blank">Pollstar API reference</a>
 	</td>
 	</tr>
 
@@ -218,8 +230,8 @@ function pollstar_dates_html_page() {
 	<th width="192" style="text-align:left;">Date format:</th>
 	<td width="406">
 	<input name="pollstar_date_format" type="text" id="pollstar_date_format"
-	value="<?php echo get_option('pollstar_date_format'); ?>" />  
-	<a href="http://codex.wordpress.org/Formatting_Date_and_Time">Documentation on date and time formatting</a>
+	value="<?php echo get_option('pollstar_date_format'); ?>" />
+	<a href="http://codex.wordpress.org/Formatting_Date_and_Time" target="_blank">Documentation on date and time formatting</a>
 	</td>
 	</tr>
 
@@ -227,7 +239,7 @@ function pollstar_dates_html_page() {
 	<th width="192" style="text-align:left;">No shows text:</th>
 	<td width="406">
 	<input name="pollstar_noshow_text" type="text" id="pollstar_noshow_text"
-	value="<?php echo get_option('pollstar_noshow_text'); ?>" size="50" />  
+	value="<?php echo get_option('pollstar_noshow_text'); ?>" size="50" />
 	</td>
 	</tr>
 
@@ -241,13 +253,13 @@ function pollstar_dates_html_page() {
 
 			<OPTION VALUE="1" SELECTED>Yes
 			<OPTION VALUE="0">No
-						
+
 		<?php } else { ?>
 
 			<OPTION VALUE="0" SELECTED>No
 			<OPTION VALUE="1">Yes
 
-		<?php } ?>                    
+		<?php } ?>
 		</select>
 	</td>
 	</tr>
@@ -263,6 +275,11 @@ function pollstar_dates_html_page() {
 	</p>
 
 	</form>
+
+	<br />
+	<i>Also available (premium): Pollstar dates by venue, Dates for multiple Pollstar artists.<br />
+		<a href="mailto:info@expomas.com" target="_blank">Contact us</a> for details.</i>.
+
 	</div>
 <?php
 } // end function pollstar_dates_html_page
