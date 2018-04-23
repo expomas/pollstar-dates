@@ -3,7 +3,7 @@ Contributors: expomas
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RY5H979GPM5ZE
 Tags: pollstar, tour
 Requires at least: 3.1
-Tested up to: 3.6.1
+Tested up to: 4.9.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -29,10 +29,10 @@ CSS hooks are included in the pollstar-dates.css file included in the plugin fol
 Tour dates are shown in the following format: Date (date format configurable in Settings), Venue (which will appear as a link
 to the Pollstar listing to that Event), and City.  For "festival" type shows, the "Event Name" will be shown instead of Venue.
 
-Plugin shows a "Powered by Pollstar" link, as required under Pollstar's API 
+Plugin shows a "Powered by Pollstar" link, as required under Pollstar's API
 <a href="http://data.pollstar.com/api/" target="_blank">Terms of Service</a>.
 
-The XML returned from Pollstar will be cached in a file in the plugins folder pollstar-cache.xml.  The plugin will only 
+The XML returned from Pollstar will be cached in a file in the plugins folder pollstar-cache.xml.  The plugin will only
 get new data from the Pollstar API if this cache is more than one hour old.  pollstar-cache.xml must be writable on your
 web server.
 
@@ -47,7 +47,7 @@ Activate the plugin from WP Admin, entering your Pollstar API key, and your arti
 
 Add the shortcode `[pollstar_shows]` to your desired page or post.
 
-The plugin can also be called from a template file by using 
+The plugin can also be called from a template file by using
 
 `<?php echo do_shortcode('[pollstar_shows]'); ?>`
 
