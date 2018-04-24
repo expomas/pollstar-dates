@@ -154,6 +154,7 @@ function pollstar_dates_install() {
 	add_option("pollstar_date_format", 'n/j/y', '', 'yes');
 	add_option("pollstar_noshow_text", 'Currently no shows scheduled', '', 'yes');
 	add_option("pollstar_show_headers", '0', '', 'yes');
+	add_option("pollstar_terms", '0', '', 'yes');
 }
 
 function pollstar_dates_remove() {
@@ -164,6 +165,7 @@ function pollstar_dates_remove() {
 	delete_option('pollstar_date_format');
 	delete_option('pollstar_noshow_text');
 	delete_option('pollstar_show_headers');
+	delete_option('pollstar_terms');
 }
 
 if ( is_admin() ){
@@ -209,6 +211,26 @@ function pollstar_dates_html_page() {
 	<?php wp_nonce_field('update-options'); ?>
 
 	<table width="710">
+	<tr valign="top">
+		<td colspan="2">
+
+			<?php if (get_option('pollstar_show_terms') == 1) { ?>
+
+				<input type="checkbox" name="terms" value="1" checked required>
+
+			<?php } else { ?>
+
+				<input type="checkbox" name="terms" value="0" required>
+
+			<?php } ?>
+
+
+		I agree to
+			display "Powered by Pollstar" external link, as required by
+			<a href="http://data.pollstar.com/api/" target="_blank">Pollstar's API Terms
+			and conditions</a>.
+		</td>
+	</tr>
 	<tr valign="top">
 	<th width="192" style="text-align:left;">Enter Pollstar Artist ID</th>
 	<td width="406">
