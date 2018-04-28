@@ -26,15 +26,12 @@ which will show only the next five shows.
 
 CSS hooks are included in the embed-pollstar-dates.css file included in the plugin folder.
 
-Tour dates are shown in the following format: Date (date format configurable in Settings), Venue (which will appear as a link
-to the Pollstar listing to that Event), and City.  For "festival" type shows, the "Event Name" will be shown instead of Venue.
+Tour dates are shown in the following format: Date (date format configurable in Settings), Venue (which will appear as a link to the Pollstar listing to that Event), and City.  For "festival" type shows, the "Event Name" will be shown instead of Venue.
 
 Plugin shows a "Powered by Pollstar" link, as required under Pollstar's API
 <a href="http://data.pollstar.com/api/" target="_blank">Terms of Service</a>.
 
-The XML returned from Pollstar will be cached in a file in the plugins folder embed-pollstar-cache.xml.  The plugin will only
-get new data from the Pollstar API if this cache is more than one hour old.  embed-pollstar-cache.xml must be writable on your
-web server.
+The XML returned from Pollstar will be cached in a file in the plugins folder embed-pollstar-cache.xml.  The plugin will only get new data from the Pollstar API if this cache is more than one hour old.  embed-pollstar-cache.xml must be writable on your web server.
 
 
 == Installation ==
