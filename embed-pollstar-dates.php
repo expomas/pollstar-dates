@@ -1,61 +1,86 @@
 <?php
 /**
- * @package Pollstar_Dates
+ * @package Embed_Pollstar_Artist_Dates
  */
 /*
-Plugin Name: Pollstar Artist Dates
+Plugin Name: Embed Pollstar Artist Dates
 Description: Show Pollstar Artist's tour dates on Wordpress site.  Requires Pollstar API key.
 Version: 1.0
 Author: Expomás Diseño Web
 Author URI: https://expomas.com
 */
 
-wp_enqueue_style('pollstar-dates', plugins_url( '/pollstar-dates.css', __FILE__ ), false, '', 'screen');
+wp_enqueue_style('embed-pollstar-dates', plugins_url( '/embed-pollstar-dates.css', __FILE__ ), false, '', 'screen');
 
 function pollstar_shows($atts) {
 
-	//echo "Do we get here?";
+	// Has Admin agreed to Pollstar terms? If not, die
+	$terms = get_option('pollstar_terms');
+
+	if ($terms !== '1') {
+
+		echo 'Error: please check settings and agree to Pollstar conditions<br /><br />';
+
+	} else { // Admin has agreed to terms
 
 	extract( shortcode_atts( array(
 		'num_shows' => 1000 // set default to lots...
 	), $atts ) );
 
-	// 1st: figure out if we should write dates from pollstar-cache.xml, or Pollstar server...
-	$cache = ABSPATH . 'wp-content/plugins/pollstar-dates/pollstar-cache.xml';
+	// 1st: figure out if we should write dates from embed-pollstar-cache.xml,
+	// or Pollstar server...
+	$cache = plugin_dir_path( __FILE__). 'embed-pollstar-cache.xml';
 
-	// Is pollstar-cache.xml too old? (more than an hour old), then get new Pollstar data
+	// Is embed-pollstar-cache.xml too old? (more than an hour old), then get new Pollstar data
 	$cache_age = time() - filemtime($cache);
 
-	// Is pollstar-cache.xml empty?  Then try and get new data (ex. on first use of plugin)
+	// Is embed-pollstar-cache.xml empty?  Then try and get new data (ex. on first use of plugin)
 	$cache_stat = stat($cache);
+
 	if ( ($cache_age > (60*60) ) OR ($cache_stat['size'] < 260) )  {
 
-		$ch = curl_init();
-
-		// Construct the $data var to pass to Pollstar using the db's API & Artist ID
+		// Construct the data to pass to Pollstar using the db's API & Artist ID
 		$artist_id = get_option('pollstar_artist');
 		$pollstar_api = get_option('pollstar_api');
 
-		$data = "artistID=$artist_id&startDate=1-1-2012&dayCount=0&page=0&pageSize=0&apiKey=$pollstar_api";
+		$body = array(
 
-		curl_setopt($ch, CURLOPT_URL, 'http://data.pollstar.com/api/pollstar.asmx/ArtistEvents');
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		    'artistID' => $artist_id,
+		    'startDate' => '1-1-2012',
+		    'dayCount' => '0',
+		    'page' => '0',
+				'pageSize' => '0',
+				'apiKey' => $pollstar_api
 
-		$xmlstr = curl_exec($ch);
+		);
 
-		if (stripos($xmlstr, "not valid") OR stripos($xmlstr, "not authorized")) {
-			echo "Pollstar API/Artist not valid<br /><br />";
+		$args = array(
+
+		    'body' => $body
+		);
+
+		$response1 = wp_remote_post( 'http://data.pollstar.com/api/pollstar.asmx/ArtistEvents', $args );
+
+		$http_code = wp_remote_retrieve_response_code( $response1 );
+
+		// if the http code is not 200, show error, not dates...
+		if ($http_code != '200') {
+
+			echo 'Server error, please check settings'.'<br /><br />';
 			$invalid = true;
-		}
 
-		$response = new SimpleXMLElement($xmlstr);
+		} else { //http code is 200, continue
 
-		// write new Pollstar data to cache
-		// Don't cache if we got an invalid response...
+		$response = new SimpleXMLElement($response1["body"]);
 
-		if(is_file($cache) && is_readable($cache)){
+		// is there an Error->Message from Pollstar? if so show it, not dates
+		if ($response->Message) {
+
+			echo $response->Message.'<br /><br />';
+			$invalid = true;
+
+		// write new Pollstar data to cache if possible
+		} elseif ( is_file($cache) && is_readable($cache) ) {
 
 			 $open = fopen($cache, 'w') or die ("File cannot be opened.");
 			 fwrite($open, $response->asXML());
@@ -63,10 +88,10 @@ function pollstar_shows($atts) {
 
 		} else {
 
-			echo "Error: check that pollstar-cache.xml is writable<br /><br />";
+			echo "Error: check that embed-pollstar-cache.xml is writable<br /><br />";
 		}
 
-		curl_close($ch);
+	 } // end elseif code is not 200
 
 	} else { // this means $cache is NOT too old, so use it instead of getting Pollstar data...
 
@@ -136,6 +161,7 @@ function pollstar_shows($atts) {
 
 	<?php
 
+} // end else (Admin has agreed to terms)
 }
 
 add_shortcode('pollstar_shows','pollstar_shows');
@@ -175,8 +201,8 @@ if ( is_admin() ){
 
 	function pollstar_dates_admin_menu() {
 
-		add_options_page('Pollstar Dates', 'Pollstar Dates', 'administrator',
-		'pollstar-dates', 'pollstar_dates_html_page');
+		add_options_page('Embed Pollstar Artist Dates', 'Embed Pollstar Artist Dates', 'administrator',
+		'embed-pollstar-dates', 'pollstar_dates_html_page');
 	}
 
 
@@ -185,8 +211,7 @@ if ( is_admin() ){
 add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), 'pollstar_dates_action_links' );
 
 function pollstar_dates_action_links( $links ) {
-   $links[] = '<a href="'. esc_url( get_admin_url(null, 'options-general.php?page=pollstar-dates') ) .'">Settings</a>';
-   //$links[] = '<a href="http://wp-buddy.com" target="_blank">More plugins by WP-Buddy</a>';
+   $links[] = '<a href="'. esc_url( get_admin_url(null, 'options-general.php?page=embed-pollstar-dates') ) .'">Settings</a>';
    return $links;
 }
 
@@ -194,7 +219,7 @@ function pollstar_dates_html_page() {
 ?>
 
     <div class="wrap" style="max-width: 61.727777777%;">
-	<h2>Pollstar Artist Dates Options</h2>
+	<h2>Embed Pollstar Artist Dates Options</h2>
 
 	<br />
 	<em>Any donations appreciated</em><br />
@@ -211,26 +236,22 @@ function pollstar_dates_html_page() {
 	<?php wp_nonce_field('update-options'); ?>
 
 	<table width="710">
-	<tr valign="top">
+	<tr valign="top" style="margin-bottom:20px;">
 		<td colspan="2">
 
-			<?php if (get_option('pollstar_show_terms') == 1) { ?>
+			<input type="checkbox" name="pollstar_terms" id="pollstar_terms"
+				value="1"
 
-				<input type="checkbox" name="terms" value="1" checked required>
+				<?php if (get_option('pollstar_terms') == 1) { echo 'checked '; } ?>
+				required style="margin-bottom:6px;">
 
-			<?php } else { ?>
-
-				<input type="checkbox" name="terms" value="0" required>
-
-			<?php } ?>
-
-
-		I agree to
+		<b>REQUIRED: </b>I agree to
 			display "Powered by Pollstar" external link, as required by
 			<a href="http://data.pollstar.com/api/" target="_blank">Pollstar's API Terms
 			and conditions</a>.
 		</td>
 	</tr>
+	<tr><td colspan="2">&nbsp;</td></tr>
 	<tr valign="top">
 	<th width="192" style="text-align:left;">Enter Pollstar Artist ID</th>
 	<td width="406">
@@ -253,7 +274,8 @@ function pollstar_dates_html_page() {
 	<td width="406">
 	<input name="pollstar_date_format" type="text" id="pollstar_date_format"
 	value="<?php echo get_option('pollstar_date_format'); ?>" />
-	<a href="http://codex.wordpress.org/Formatting_Date_and_Time" target="_blank">Documentation on date and time formatting</a>
+	<a href="http://codex.wordpress.org/Formatting_Date_and_Time"
+		target="_blank">Documentation on date and time formatting</a>
 	</td>
 	</tr>
 
@@ -290,8 +312,8 @@ function pollstar_dates_html_page() {
 	</table>
 
 	<input type="hidden" name="action" value="update" />
-	<input type="hidden" name="page_options" value="pollstar_artist,pollstar_api,pollstar_date_format,pollstar_noshow_text,pollstar_show_headers" />
-
+	<input type="hidden" name="page_options"
+		value="pollstar_artist,pollstar_api,pollstar_date_format,pollstar_noshow_text,pollstar_show_headers,pollstar_terms" />
 	<p>
 	<input type="submit" value="<?php _e('Save Changes') ?>" />
 	</p>

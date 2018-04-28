@@ -1,4 +1,4 @@
-=== Pollstar Artist Tour Dates ===
+=== Embed Pollstar Artist Tour Dates ===
 Contributors: expomas
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RY5H979GPM5ZE
 Tags: pollstar, tour
@@ -24,7 +24,7 @@ which will show all upcoming shows.  You may specify a number of upcoming shows 
 
 which will show only the next five shows.
 
-CSS hooks are included in the pollstar-dates.css file included in the plugin folder.
+CSS hooks are included in the embed-pollstar-dates.css file included in the plugin folder.
 
 Tour dates are shown in the following format: Date (date format configurable in Settings), Venue (which will appear as a link
 to the Pollstar listing to that Event), and City.  For "festival" type shows, the "Event Name" will be shown instead of Venue.
@@ -32,18 +32,19 @@ to the Pollstar listing to that Event), and City.  For "festival" type shows, th
 Plugin shows a "Powered by Pollstar" link, as required under Pollstar's API
 <a href="http://data.pollstar.com/api/" target="_blank">Terms of Service</a>.
 
-The XML returned from Pollstar will be cached in a file in the plugins folder pollstar-cache.xml.  The plugin will only
-get new data from the Pollstar API if this cache is more than one hour old.  pollstar-cache.xml must be writable on your
+The XML returned from Pollstar will be cached in a file in the plugins folder embed-pollstar-cache.xml.  The plugin will only
+get new data from the Pollstar API if this cache is more than one hour old.  embed-pollstar-cache.xml must be writable on your
 web server.
 
 
 == Installation ==
 
-Download and extract the pollstar-dates.zip
+Download and extract the embed-pollstar-dates.zip
 
 Extract the folder and upload it to the plugins directory of your WP build.
 
 Activate the plugin from WP Admin, entering your Pollstar API key, and your artist's ID (as provided by Pollstar).
+You must also agree to display an external link to Pollstar, as required by their terms and conditions.
 
 Add the shortcode `[pollstar_shows]` to your desired page or post.
 
