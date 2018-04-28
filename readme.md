@@ -1,11 +1,21 @@
 === Embed Pollstar Artist Tour Dates ===
+
 Contributors: expomas
+
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=RY5H979GPM5ZE
+
+or Bitcoin: 1MDRFyVS93BVLc5dgpGpVVupy3X5CSveDa
+
 Tags: pollstar, tour
+
 Requires at least: 3.1
+
 Tested up to: 4.9.5
+
 Stable tag: trunk
+
 License: GPLv2 or later
+
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 Display artist's tour dates using Pollstar's ArtistEvents API method.  Pollstar API key required.
